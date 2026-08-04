@@ -16,7 +16,6 @@ import {
   
  } from "../lib/puter.action";
 import "./app.css";
-import { sign } from "crypto";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -79,12 +78,22 @@ export default function App() {
   },[]);
   
   const signIn = async () => {
-    await puterSignIn();
-    return await refreshAuth();
+    try {
+      await puterSignIn();
+      return await refreshAuth();
+    } catch (err) {
+      console.error("Puter sign in error in root:", err);
+      return false;
+    }
   }
   const signOut = async () => {
-    await puterSignOut();
-    return await refreshAuth();
+    try {
+      await puterSignOut();
+      return await refreshAuth();
+    } catch (err) {
+      console.error("Puter sign out error in root:", err);
+      return false;
+    }
   }
   
   return (

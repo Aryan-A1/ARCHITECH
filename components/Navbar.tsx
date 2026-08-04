@@ -64,7 +64,20 @@ const Navbar = () => {
                         <Button onClick={handleAuthClick} size = "sm" variant = "ghost">
                             Log In
                         </Button>
-                        <a href="#upload" className="cta">
+                        <a 
+                            href="#upload" 
+                            className="cta"
+                            onClick={async (e) => {
+                                if (!isSignedIn) {
+                                    e.preventDefault();
+                                    await handleAuthClick();
+                                    const uploadElem = document.getElementById("upload");
+                                    if (uploadElem) {
+                                        uploadElem.scrollIntoView({ behavior: "smooth" });
+                                    }
+                                }
+                            }}
+                        >
                             Get Started
                         </a>
                     </>
