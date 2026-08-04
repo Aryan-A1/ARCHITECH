@@ -91,7 +91,7 @@ export default function App() {
     <main className="min-h-screen bg-backgroung text-foreground relative z-10">
 
       <Outlet
-      context ={{...authState, refreshAuth, signIn, signOut}} />;
+      context ={{...authState, refreshAuth, signIn, signOut}} />
     </main>
   )
 }
