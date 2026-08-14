@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState} from "react";
 import { useLocation, useNavigate,useParams ,useOutletContext } from "react-router";
 import { generate3DView } from "../../lib/ai.action";
-import { Box, Download, Projector, RefreshCcw, Share, Share2, X } from "lucide-react";
+import { Box, Download, Projector, RefreshCcw, X } from "lucide-react";
 import Button from "../../components/ui/Button";
 import { createProject, getProjectById } from "../../lib/puter.action";
+import { ReactCompareSlider } from "react-compare-slider";
+import {ReactCompareSliderImage} from "react-compare-slider";
 
 
 const VisualizerId = () => {
@@ -22,6 +24,25 @@ const VisualizerId = () => {
 
 
   const handleBack = () => navigate('/');
+
+  const handleExport = async () => {
+    if (!currentImage) return;
+    try {
+      const response = await fetch(currentImage);
+      const blob = await response.blob();
+      const ext = blob.type.split('/')[1] || 'png';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${project?.name || `render-${id}`}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
 
   const runGeneration = async (item: DesignItem) => {
     if(!id || !item.sourceImage) return;
@@ -136,24 +157,15 @@ useEffect(() => {
               <div className="panel-actions">
                 <Button
                   size="sm"
-                  onClick={()=>{}}
+                  onClick={handleExport}
                   className="export"
                   disabled = {!currentImage}>
                     <Download className="w-4 h-4 mr-2"/> Export                   
                 </Button>
-
-                <Button
-                  size="sm" 
-                  onClick={() => {}}
-                  className="share"
-                >
-                  <Share2 className="w-4 h-4 mr-2"/>
-                  Share
-                </Button>
               </div>
             </div>
 
-            <div className={`render-area ${isProcessing ? 'is-processing' : ''}`}>~
+            <div className={`render-area ${isProcessing ? 'is-processing' : ''}`}>
 
               {currentImage ? (
                 <img src = {currentImage} alt = "AI Render"
@@ -171,19 +183,58 @@ useEffect(() => {
                   <div className="rendering-card">
                     <RefreshCcw className="spinner"/>
                     <span className="title">Rendering...</span>
-                    <span className="subtitle">Generating your 3~D visualization</span>
+                    <span className="subtitle">Generating your 3D visualization</span>
                   </div>
                 </div>
               )}
             
             </div>
         </div>
+
+        <div className="panel compare">
+              <div className="panel-header">
+                  <div className="panel-meta">
+                    <p>Comparision</p>
+                    <h3>Before and After</h3>
+                  </div>
+                  <div className="hint">Drag to compare</div>
+              </div>
+
+              <div className="compare-stage">
+                  {project?.sourceImage && currentImage ? (
+                    <ReactCompareSlider
+                      defaultValue={50}
+                      style={{width:'100%', height:'auto'}}
+                      itemOne={
+                        <ReactCompareSliderImage src={project?.sourceImage} alt="before"
+                        className="compare-img"/>
+                      }
+                      itemTwo={
+                        <ReactCompareSliderImage src={currentImage} alt="after"
+                        className="compare-img"/>
+                      }
+                    />
+                  ) : (
+                    <div className="comapre-fallback">
+                      {project?.sourceImage && (
+                        <img src={project.sourceImage} alt="Before" className="compare-img"/>
+                      )}
+                    </div>
+
+                  )}
+              </div>
+
+
+                
+
+
+
       
+              </div>
       
       </section>    
     </div>
 
-    
   )
 }
 
